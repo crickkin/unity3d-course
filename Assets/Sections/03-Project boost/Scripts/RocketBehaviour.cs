@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -25,6 +26,8 @@ public class RocketBehaviour : MonoBehaviour
     enum State { Alive, Dying, Transcending };
     State state = State.Alive;
 
+    bool collisionEnabled = true;
+
     void Start()
     {
         rigidBody = GetComponent<Rigidbody>();
@@ -40,11 +43,27 @@ public class RocketBehaviour : MonoBehaviour
             RespondToThrustInput();
             Rotate();
         }
+
+        // Apenas responde aos Inputs de Debug se for uma Development Build
+        if (Debug.isDebugBuild)
+            RespondToDebug();
+    }
+
+    private void RespondToDebug()
+    {
+        if (Input.GetKeyDown(KeyCode.L))
+        {
+            LoadNextScene();
+        }
+        else if (Input.GetKeyDown(KeyCode.C))
+        {
+            collisionEnabled = !collisionEnabled;
+        }
     }
 
     void OnCollisionEnter (Collision other)
     {
-        if (state != State.Alive)
+        if (state != State.Alive || !collisionEnabled)
             return;
 
         switch (other.gameObject.tag)
